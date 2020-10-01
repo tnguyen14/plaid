@@ -1,20 +1,22 @@
 require('dotenv').config();
 
-var util = require('util');
+const util = require('util');
 
-var express = require('express');
-var bodyParser = require('body-parser');
-var moment = require('moment');
-var plaid = require('plaid');
+const express = require('express');
+const bodyParser = require('body-parser');
+const moment = require('moment');
+const plaid = require('plaid');
 
 const PORT = process.env.PORT || 3000;
-var PLAID_CLIENT_ID = process.env.PLAID_CLIENT_ID;
-var PLAID_SECRET = process.env.PLAID_SECRET;
-var PLAID_ENV = process.env.PLAID_ENV || 'sandbox';
-// PLAID_PRODUCTS is a comma-separated list of products to use when initializing
-// Link. Note that this list must contain 'assets' in order for the app to be
-// able to create and retrieve asset reports.
-var PLAID_PRODUCTS = 'US';
+const PLAID_CLIENT_ID = process.env.PLAID_CLIENT_ID;
+const PLAID_SECRET = process.env.PLAID_SECRET;
+const PLAID_ENV = 'development';
+
+const PLAID_PRODUCTS = ['transactions', 'balance'];
+
+// PLAID_PRODUCTS is a comma-separated list of countries for which users
+// will be able to select institutions from.
+const PLAID_COUNTRY_CODES = (process.env.PLAID_COUNTRY_CODES || 'US').split(',');
 
 // Parameters used for the OAuth redirect Link flow.
 //
@@ -23,21 +25,21 @@ var PLAID_PRODUCTS = 'US';
 // that the bank website should redirect to. You will need to configure
 // this redirect URI for your client ID through the Plaid developer dashboard
 // at https://dashboard.plaid.com/team/api.
-var PLAID_REDIRECT_URI = process.env.PLAID_REDIRECT_URI || "";
+const PLAID_REDIRECT_URI = process.env.PLAID_REDIRECT_URI || "";
 
 // We store the access_token in memory - in production, store it in a secure
 // persistent data store
-var ACCESS_TOKEN = null;
-var PUBLIC_TOKEN = null;
-var ITEM_ID = null;
+let ACCESS_TOKEN = null;
+let PUBLIC_TOKEN = null;
+let ITEM_ID = null;
 // The payment_id is only relevant for the UK Payment Initiation product.
 // We store the payment_id in memory - in production, store it in a secure
 // persistent data store
-var PAYMENT_ID = null;
+let PAYMENT_ID = null;
 
 // Initialize the Plaid client
 // Find your API keys in the Dashboard (https://dashboard.plaid.com/account/keys)
-var client = new plaid.Client({
+const client = new plaid.Client({
   clientID: PLAID_CLIENT_ID,
   secret: PLAID_SECRET,
   env: plaid.environments[PLAID_ENV],
@@ -46,7 +48,7 @@ var client = new plaid.Client({
   }
 });
 
-var app = express();
+const app = express();
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({
   extended: false
@@ -74,20 +76,20 @@ app.post('/api/info', function(request, response, next) {
 // See https://plaid.com/docs/#create-link-token
 app.post('/api/create_link_token', function(request, response, next) {
   const configs = {
-    'user': {
+    user: {
       // This should correspond to a unique id for the current user.
-      'client_user_id': 'user-id',
+      client_user_id: 'user-id',
     },
-    'client_name': "Plaid Quickstart",
-    'products': PLAID_PRODUCTS,
-    'country_codes': PLAID_COUNTRY_CODES,
-    'language': "en",
+    client_name: 'Plaid Quickstart',
+    products: PLAID_PRODUCTS,
+    country_codes: PLAID_COUNTRY_CODES,
+    language: 'en',
   }
 
   if (PLAID_REDIRECT_URI !== '') {
     configs.redirect_uri = PLAID_REDIRECT_URI;
   }
-  
+
   client.createLinkToken(configs, function(error, createTokenResponse) {
       if (error != null) {
         prettyPrintResponse(error);
@@ -106,10 +108,10 @@ app.post('/api/create_link_token_for_payment', function(request, response, next)
       'Harry Potter',
       'GB33BUKB20201555555555',
       {
-        'street':      ['4 Privet Drive'],
-        'city':        'Little Whinging',
-        'postal_code': '11111',
-        'country':     'GB'
+        street:      ['4 Privet Drive'],
+        city:        'Little Whinging',
+        postal_code: '11111',
+        country:     'GB'
       },
       function(error, createRecipientResponse) {
         var recipientId = createRecipientResponse.recipient_id
@@ -118,24 +120,24 @@ app.post('/api/create_link_token_for_payment', function(request, response, next)
           recipientId,
           'payment_ref',
           {
-            'value': 12.34,
-            'currency': 'GBP'
+            value: 12.34,
+            currency: 'GBP'
           },
           function(error, createPaymentResponse) {
             prettyPrintResponse(createPaymentResponse)
             var paymentId = createPaymentResponse.payment_id
             PAYMENT_ID = paymentId;
             const configs = {
-              'user': {
+              user: {
                 // This should correspond to a unique id for the current user.
-                'client_user_id': 'user-id',
+                client_user_id: 'user-id',
               },
-              'client_name': "Plaid Quickstart",
-              'products': PLAID_PRODUCTS,
-              'country_codes': PLAID_COUNTRY_CODES,
-              'language': "en",
-              'payment_initiation': {
-                 'payment_id': paymentId
+              client_name: 'Plaid Quickstart',
+              products: PLAID_PRODUCTS,
+              country_codes: PLAID_COUNTRY_CODES,
+              language: 'en',
+              payment_initiation: {
+                 payment_id: paymentId
               }
             };
             if (PLAID_REDIRECT_URI !== '') {
@@ -143,17 +145,17 @@ app.post('/api/create_link_token_for_payment', function(request, response, next)
             }
             client.createLinkToken(
             {
-               'user': {
+               user: {
                  // This should correspond to a unique id for the current user.
-                 'client_user_id': 'user-id',
+                 client_user_id: 'user-id',
                },
-               'client_name': "Plaid Quickstart",
-               'products': PLAID_PRODUCTS,
-               'country_codes': PLAID_COUNTRY_CODES,
-               'language': "en",
-               'redirect_uri': PLAID_REDIRECT_URI,
-               'payment_initiation': {
-                  'payment_id': paymentId
+               client_name: 'Plaid Quickstart',
+               products: PLAID_PRODUCTS,
+               country_codes: PLAID_COUNTRY_CODES,
+               language: 'en',
+               redirect_uri: PLAID_REDIRECT_URI,
+               payment_initiation: {
+                  payment_id: paymentId
                }
              }, function(error, createTokenResponse) {
               if (error != null) {
@@ -227,8 +229,8 @@ app.get('/api/auth', function(request, response, next) {
 // https://plaid.com/docs/#transactions
 app.get('/api/transactions', function(request, response, next) {
   // Pull transactions for the Item for the last 30 days
-  var startDate = moment().subtract(30, 'days').format('YYYY-MM-DD');
-  var endDate = moment().format('YYYY-MM-DD');
+  const startDate = moment().subtract(30, 'days').format('YYYY-MM-DD');
+  const endDate = moment().format('YYYY-MM-DD');
   client.getTransactions(ACCESS_TOKEN, startDate, endDate, {
     count: 250,
     offset: 0,
@@ -294,8 +296,8 @@ app.get('/api/holdings', function(request, response, next) {
 // Retrieve Investment Transactions for an Item
 // https://plaid.com/docs/#investments
 app.get('/api/investment_transactions', function(request, response, next) {
-  var startDate = moment().subtract(30, 'days').format('YYYY-MM-DD');
-  var endDate = moment().format('YYYY-MM-DD');
+  const startDate = moment().subtract(30, 'days').format('YYYY-MM-DD');
+  const endDate = moment().format('YYYY-MM-DD');
   client.getInvestmentTransactions(ACCESS_TOKEN, startDate, endDate, function(error, investmentTransactionsResponse) {
     if (error != null) {
       prettyPrintResponse(error);
@@ -315,12 +317,12 @@ app.get('/api/investment_transactions', function(request, response, next) {
 app.get('/api/assets', function(request, response, next) {
   // You can specify up to two years of transaction history for an Asset
   // Report.
-  var daysRequested = 10;
+  const daysRequested = 10;
 
   // The `options` object allows you to specify a webhook for Asset Report
   // generation, as well as information that you want included in the Asset
   // Report. All fields are optional.
-  var options = {
+  const options = {
     client_report_id: 'Custom Report ID #123',
     // webhook: 'https://your-domain.tld/plaid-webhook',
     user: {
@@ -381,7 +383,7 @@ app.get('/api/item', function(request, response, next) {
     // Also pull information about the institution
     client.getInstitutionById(itemResponse.item.institution_id, function(err, instRes) {
       if (err != null) {
-        var msg = 'Unable to pull institution information from the Plaid API.';
+        const msg = 'Unable to pull institution information from the Plaid API.';
         console.log(msg + '\n' + JSON.stringify(error));
         return response.json({
           error: msg
@@ -397,11 +399,11 @@ app.get('/api/item', function(request, response, next) {
   });
 });
 
-var server = app.listen(PORT, function() {
-  console.log(`plaid-quickstart server listening on port ${PORT}`);
+const server = app.listen(PORT, function() {
+  console.log(`server listening on port ${PORT}`);
 });
 
-var prettyPrintResponse = response => {
+const prettyPrintResponse = response => {
   console.log(util.inspect(response, {colors: true, depth: 4}));
 };
 
@@ -409,7 +411,7 @@ var prettyPrintResponse = response => {
 // then send it in the response to the client. Alternatively, you can provide a
 // webhook in the `options` object in your `/asset_report/create` request to be
 // notified when the Asset Report is finished being generated.
-var respondWithAssetReport = (
+const respondWithAssetReport = (
   numRetriesRemaining,
   assetReportToken,
   client,
@@ -421,7 +423,7 @@ var respondWithAssetReport = (
     });
   }
 
-  var includeInsights = false;
+  const includeInsights = false;
   client.getAssetReport(
     assetReportToken,
     includeInsights,
@@ -438,7 +440,7 @@ var respondWithAssetReport = (
         }
 
         return response.json({
-          error: error,
+          error,
         });
       }
 
@@ -447,7 +449,7 @@ var respondWithAssetReport = (
         function(error, assetReportGetPdfResponse) {
           if (error != null) {
             return response.json({
-              error: error,
+              error,
             });
           }
 
