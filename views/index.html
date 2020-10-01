@@ -9,7 +9,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-  <main class="main">
+  <main class="main unauthenticated">
+    <div class="auth">
+      <button type="button">Log In</button>
+    </div>
     <div class="grid">
       <div class="grid__column grid__column--is-twelve-columns">
         <div id="banner" class="everpresent-content">
@@ -248,6 +251,6 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
   <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
-  <script src="index.js"></script>
+  <script type="module" src="index.js"></script>
 </body>
 </html>

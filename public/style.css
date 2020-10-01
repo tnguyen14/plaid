@@ -15,7 +15,13 @@ body {
   padding: 80px 40px;
 }
 
+.main.unauthenticated .grid {
+  display: none;
+}
 
+.auth {
+  margin-bottom: 2rem;
+}
 /*
 
 Content at the top of the view

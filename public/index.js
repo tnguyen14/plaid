@@ -1,3 +1,51 @@
+import { getSession, deleteSession, createAuth } from "https://cdn.skypack.dev/@tridnguyen/auth";
+
+const session = getSession();
+
+const auth = createAuth();
+
+function login() {
+  auth.silentAuth();
+}
+
+const $authButton = $('.auth button');
+
+$authButton.click(() => {
+  auth.silentAuth();
+});
+
+function loginSuccess() {
+  $('.main').removeClass('unauthenticated');
+  $authButton.text('Log Out');
+  $.post('api/info', {}, function(result) {
+    render_page(result);
+  });
+}
+
+function unauthenticated() {
+  $('.main').addClass('unauthenticated');
+  $authButton.text('Log In');
+}
+auth.handleCallback((err) => {
+  if (err) {
+    console.error(err);
+    return;
+  } else {
+    loginSuccess();
+  }
+});
+
+function logout() {
+  deleteSession();
+  unauthenticated();
+}
+
+if (!session) {
+  unauthenticated();
+} else {
+  loginSuccess();
+}
+
 function render_success(data) {
   $('#container').fadeOut('fast', function() {
     $('#item_id').text(data.item_id);
@@ -6,7 +54,7 @@ function render_success(data) {
     $('#app, #steps').fadeIn('slow');
   });
 }
-function render_page($, page_info) {
+function render_page(page_info) {
   if (page_info && page_info.item_id) {
     render_success(page_info);
   }
@@ -386,9 +434,6 @@ function render_page($, page_info) {
     });
   });
 }
-$.post('api/info', {}, function(result) {
-  render_page(jQuery, result);
-});
 
 function qs(key) {
     key = key.replace(/[*+?^$.\[\]{}()|\\\/]/g, "\\$&"); // escape RegEx meta chars
