@@ -249,18 +249,25 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
   <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
   <script>
+  function success(data) {
+    $('#container').fadeOut('fast', function() {
+      $('#item_id').text(data.item_id);
+      $('#access_token').text(data.access_token);
+      $('#intro').hide();
+      $('#app, #steps').fadeIn('slow');
+    });
+  }
   function render_page($, page_info) {
+    if (page_info && page_info.item_id) {
+      success(page_info);
+    }
     // Handles redirect from the oauth response page for the oauth flow.
     if (document.referrer != null && document.referrer.includes('http://localhost:8000/oauth-response.html') && page_info.item_id != null && page_info.item_id.length > 0) {
-      $('#container').fadeOut('fast', function() {
-        $('#item_id').text(page_info.item_id);
-        $('#access_token').text(page_info.access_token);
-        $('#intro').hide();
-        $('#app, #steps').fadeIn('slow');
-      });
+      success(page_info);
     }
 
-    var products = page_info.products;
+
+    const products = page_info.products;
     if (products.includes('assets')) {
       $('#assets').show();
     }
@@ -284,14 +291,7 @@
             // payment_initiation product and should be skipped.
             $.post('api/set_access_token', {
               public_token: public_token
-            }, function(data) {
-              $('#container').fadeOut('fast', function() {
-                $('#item_id').text(data.item_id);
-                $('#access_token').text(data.access_token);
-                $('#intro').hide();
-                $('#app, #steps').fadeIn('slow');
-              });
-            });
+            }, success);
           },
         });
         $('#link-btn').attr('disabled', false);
@@ -311,14 +311,7 @@
           onSuccess: function(public_token) {
             $.post('api/set_access_token', {
               public_token: public_token
-            }, function(data) {
-              $('#container').fadeOut('fast', function() {
-                $('#item_id').text(data.item_id);
-                $('#access_token').text(data.access_token);
-                $('#intro').hide();
-                $('#app, #steps').fadeIn('slow');
-              });
-            });
+            }, success);
           },
         });
         $('#link-btn').attr('disabled', false);
@@ -331,12 +324,10 @@
       $.post('api/set_access_token', {
         access_token: accessToken
       }, function(data) {
-        $('#container').fadeOut('fast', function() {
-          $('#item_id').text(data.item_id);
-          $('#access_token').text(accessToken);
-          $('#intro').hide();
-          $('#app, #steps').fadeIn('slow');
-        });
+        success({
+          ...data,
+          access_token: accessToken
+        })
       });
     }
 

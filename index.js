@@ -12,7 +12,7 @@ const PLAID_CLIENT_ID = process.env.PLAID_CLIENT_ID;
 const PLAID_SECRET = process.env.PLAID_SECRET;
 const PLAID_ENV = 'development';
 
-const PLAID_PRODUCTS = ['transactions', 'balance'];
+const PLAID_PRODUCTS = ['transactions'];
 
 // PLAID_PRODUCTS is a comma-separated list of countries for which users
 // will be able to select institutions from.
@@ -29,9 +29,10 @@ const PLAID_REDIRECT_URI = process.env.PLAID_REDIRECT_URI || "";
 
 // We store the access_token in memory - in production, store it in a secure
 // persistent data store
-let ACCESS_TOKEN = null;
+// Tri - use values set in env to make API usable
+let ACCESS_TOKEN = process.env.ACCESS_TOKEN;
 let PUBLIC_TOKEN = null;
-let ITEM_ID = null;
+let ITEM_ID = process.env.ITEM_ID;
 // The payment_id is only relevant for the UK Payment Initiation product.
 // We store the payment_id in memory - in production, store it in a secure
 // persistent data store
