@@ -7,12 +7,6 @@
 
 <link rel="stylesheet" type="text/css" href="./static/style.css">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-.main {
-  margin: 1rem auto;
-  width: 90%;
-}
-</style>
 </head>
 <body>
   <main class="main">
@@ -273,7 +267,7 @@
     // This functionality is only relevant for the UK Payment Initiation product.
     if (products.includes('payment_initiation')) {
       $('.payment_initiation').show();
-      $.post('/api/create_link_token_for_payment', {}, function(data) {
+      $.post('api/create_link_token_for_payment', {}, function(data) {
         if (data.error != null) {
             $('.loading-indicator').hide();
             displayError($('#container'), data.error);
@@ -288,7 +282,7 @@
           onSuccess: function(public_token) {
             // This public token exchange step is not relevant for the
             // payment_initiation product and should be skipped.
-            $.post('/api/set_access_token', {
+            $.post('api/set_access_token', {
               public_token: public_token
             }, function(data) {
               $('#container').fadeOut('fast', function() {
@@ -305,7 +299,7 @@
       });
     } else {
       var handler = null;
-      $.post('/api/create_link_token', {}, function(data){
+      $.post('api/create_link_token', {}, function(data){
         if (data.error != null) {
             $('.loading-indicator').hide();
             displayError($('#container'), data.error);
@@ -315,7 +309,7 @@
         handler = Plaid.create({
           token: data.link_token,
           onSuccess: function(public_token) {
-            $.post('/api/set_access_token', {
+            $.post('api/set_access_token', {
               public_token: public_token
             }, function(data) {
               $('#container').fadeOut('fast', function() {
@@ -334,7 +328,7 @@
 
     var accessToken = qs('access_token');
     if (accessToken != null && accessToken !== '') {
-      $.post('/api/set_access_token', {
+      $.post('api/set_access_token', {
         access_token: accessToken
       }, function(data) {
         $('#container').fadeOut('fast', function() {
@@ -353,7 +347,7 @@
     });
 
     $('#get-accounts-btn').on('click', function(e) {
-      $.get('/api/accounts', function(data) {
+      $.get('api/accounts', function(data) {
 
         $('#get-accounts-data').slideUp(function() {
           if (data.error != null) {
@@ -376,7 +370,7 @@
     });
 
     $('#get-auth-btn').on('click', function(e) {
-      $.get('/api/auth', function(data) {
+      $.get('api/auth', function(data) {
         $('#get-auth-data').slideUp(function() {
           if (data.error != null) {
             displayError(this, data.error);
@@ -419,7 +413,7 @@
     });
 
     $('#get-identity-btn').on('click', function(e) {
-      $.get('/api/identity', function(data) {
+      $.get('api/identity', function(data) {
         $('#get-identity-data').slideUp(function() {
           if (data.error != null) {
             displayError(this, data.error);
@@ -458,7 +452,7 @@
     });
 
     $('#get-item-btn').on('click', function(e) {
-      $.get('/api/item', function(data) {
+      $.get('api/item', function(data) {
         $('#get-item-data').slideUp(function() {
           if (data.error != null) {
             displayError(this, data.error);
@@ -475,7 +469,7 @@
     });
 
     $('#get-transactions-btn').on('click', function(e) {
-      $.get('/api/transactions', function(data) {
+      $.get('api/transactions', function(data) {
         if (data.error != null && data.error.error_code != null) {
           // Format the error
           var errorHtml = '<div class="inner"><p>' +
@@ -516,7 +510,7 @@
     });
 
     $('#get-balance-btn').on('click', function(e) {
-      $.get('/api/balance', function(data) {
+      $.get('api/balance', function(data) {
         $('#get-balance-data').slideUp(function() {
           if (data.error != null) {
             displayError(this, data.error);
@@ -538,7 +532,7 @@
     });
 
     $('#get-holdings-btn').on('click', function(e) {
-      $.get('/api/holdings', function(data) {
+      $.get('api/holdings', function(data) {
         $('#get-holdings-data').slideUp(function() {
           if (data.error != null) {
             displayError(this, data.error);
@@ -581,7 +575,7 @@
     });
 
     $('#get-investment-transactions-btn').on('click', function(e) {
-      $.get('/api/investment_transactions', function(data) {
+      $.get('api/investment_transactions', function(data) {
         $('#get-investment-transactions-data').slideUp(function() {
           if (data.error != null) {
             displayError(this, data.error);
@@ -602,7 +596,7 @@
     });
 
     $('#get-assets-btn').on('click', function(e) {
-      $.get('/api/assets', function(data) {
+      $.get('api/assets', function(data) {
         $('#get-assets-data').slideUp(function() {
           if (data.error != null) {
             displayError(this, data.error);
@@ -639,7 +633,7 @@
 
     // This functionality is only relevant for the UK Payment Initiation product.
     $('#get-payment-btn').on('click', function(e) {
-      $.get('/api/payment', function(data) {
+      $.get('api/payment', function(data) {
         $('#get-payment-data').slideUp(function() {
           if (data.error != null) {
             displayError(this, data.error);
@@ -657,7 +651,7 @@
       });
     });
   }
-  $.post('/api/info', {}, function(result) {
+  $.post('api/info', {}, function(result) {
     render_page(jQuery, result);
   });
 
