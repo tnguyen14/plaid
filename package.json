@@ -1,13 +1,13 @@
 {
-  "name": "plaid-node-walkthrough",
-  "version": "0.1.0",
-  "description": "A sample app and accompanying walkthrough for the Plaid API.",
+  "name": "banks",
+  "version": "1.0.0",
+  "description": "banks",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
-  "author": "developers@plaid.com",
-  "repository": "https://github.com/plaid/quickstart",
+  "author": "tri@tridnguyen.com",
+  "repository": "https://github.com/tnguyen14/banks",
   "license": "ISC",
   "dependencies": {
     "body-parser": "1.18.x",

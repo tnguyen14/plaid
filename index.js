@@ -7,7 +7,7 @@ var bodyParser = require('body-parser');
 var moment = require('moment');
 var plaid = require('plaid');
 
-var APP_PORT = process.env.APP_PORT || 8000;
+const PORT = process.env.PORT || 3000;
 var PLAID_CLIENT_ID = process.env.PLAID_CLIENT_ID;
 var PLAID_SECRET = process.env.PLAID_SECRET;
 var PLAID_ENV = process.env.PLAID_ENV || 'sandbox';
@@ -397,8 +397,8 @@ app.get('/api/item', function(request, response, next) {
   });
 });
 
-var server = app.listen(APP_PORT, function() {
-  console.log('plaid-quickstart server listening on port ' + APP_PORT);
+var server = app.listen(PORT, function() {
+  console.log(`plaid-quickstart server listening on port ${PORT}`);
 });
 
 var prettyPrintResponse = response => {
