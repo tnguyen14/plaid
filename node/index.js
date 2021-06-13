@@ -71,7 +71,7 @@ app.use(
 );
 app.use(bodyParser.json());
 
-require('./custom.js')(app, client);
+require('./custom.js')(app);
 
 app.post('/api/info', function (request, response, next) {
   response.json({
