@@ -71,6 +71,8 @@ app.use(
 );
 app.use(bodyParser.json());
 
+require('./custom.js')(app, client);
+
 app.post('/api/info', function (request, response, next) {
   response.json({
     item_id: ITEM_ID,
