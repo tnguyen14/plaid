@@ -71,7 +71,17 @@ app.use(
 );
 app.use(bodyParser.json());
 
-app.get('/balance.csv', require('./function.js').balanceCsv)
+async function balanceCsv (req, res) {
+  const balance = await client.accountsBalanceGet({
+    access_token: ACCESS_TOKEN,
+  });
+  res.attachment('balance.csv');
+  res.send(`${balance.data.accounts[0].balances.current}`);
+}
+
+exports.balanceCsv = balanceCsv;
+
+app.get('/balance.csv', balanceCsv)
 
 app.post('/api/info', function (request, response, next) {
   response.json({
