@@ -27,7 +27,7 @@ jobs:
       - name: deploy
         run: |-
           gcloud functions deploy schwabBalanceCsv \
-            --source=node \
+            --source=./node \
             --entry-point=balanceCsv \
             --allow-unauthenticated \
             --region "$REGION" \
