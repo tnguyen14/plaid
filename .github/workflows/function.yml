@@ -1,0 +1,37 @@
+name: Deploy to GCP Cloud Functions
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    env:
+      PROJECT_ID: build-tridnguyen-com
+      REGION: us-central1
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      # Setup gcloud CLI
+      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+          service_account_email: "github-actions@build-tridnguyen-com.iam.gserviceaccount.com"
+          service_account_key: ${{ secrets.SA_KEY }}
+          project_id: "build-tridnguyen-com"
+
+      - name: deploy
+        run: |-
+          gcloud functions deploy schwabBalanceCsv \
+            --source=node \
+            --entry-point=balanceCsv \
+            --allow-unauthenticated \
+            --region "$REGION" \
+            --runtime nodejs14 \
+            --ingress-settings=all \
+            --trigger-http
+

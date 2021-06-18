@@ -71,7 +71,7 @@ app.use(
 );
 app.use(bodyParser.json());
 
-app.get('/balance.csv', require('./function.js').schwabBalanceCsv)
+app.get('/balance.csv', require('./function.js').balanceCsv)
 
 app.post('/api/info', function (request, response, next) {
   response.json({

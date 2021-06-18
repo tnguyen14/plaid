@@ -15,7 +15,7 @@ const configuration = new Configuration({
 
 const client = new PlaidApi(configuration);
 
-exports.schwabBalanceCsv = async (req, res) => {
+exports.balanceCsv = async (req, res) => {
   const balance = await client.accountsBalanceGet({
     access_token: ACCESS_TOKEN,
   });
