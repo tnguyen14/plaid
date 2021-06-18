@@ -25,9 +25,9 @@ jobs:
           project_id: "build-tridnguyen-com"
 
       - name: deploy
+        working-directory: node
         run: |-
           gcloud functions deploy schwabBalanceCsv \
-            --source=./node \
             --entry-point=balanceCsv \
             --allow-unauthenticated \
             --region "$REGION" \
