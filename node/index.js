@@ -274,23 +274,6 @@ app.get('/api/identity', async function (request, response, next) {
   }
 });
 
-async function balanceCsv (req, res) {
-  try {
-    const balance = await client.accountsBalanceGet({
-      access_token: ACCESS_TOKEN,
-    });
-    res.attachment('balance.csv');
-    res.send(`${balance.data.accounts[0].balances.current}`);
-  } catch (e) {
-    console.error(e);
-    res.status(500).send(e.message);
-  }
-}
-
-exports.balanceCsv = balanceCsv;
-
-app.get('/balance.csv', balanceCsv)
-
 // Retrieve real-time Balances for each of an Item's accounts
 // https://plaid.com/docs/#balance
 app.get('/api/balance', async function (request, response, next) {
